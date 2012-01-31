@@ -71,16 +71,10 @@ function addTempTrap() {
 statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
 ###
-# Use or make a temporary PREFIX
-if [ -z "${PREFIX}" ]; then
-	PREFIX=$(mktemp -d)
-	temps="${temps} ${PREFIX}"
-	statusmsg "Using a temporary directory as the LuaRocks install prefix: ${PREFIX}"
-	addTempTrap "LuaRocks install prefix" "${PREFIX}"
-else
-	statusmsg "Will install LuaRocks itself to the prefix ${PREFIX}"
-fi
+# Use or compute a PREFIX
+: ${PREFIX:="${TREEDIR}/luarocks-${luarocks_ver}"}
 mkdir -p "${PREFIX}"
+statusmsg "Will install LuaRocks itself to the prefix ${PREFIX}"
 
 ###
 # Use or make a temporary WORKDIR
