@@ -61,7 +61,8 @@ This is particularly useful in conjuction with [git-deploy][]. You have two opti
 
 - Download and execute the latest version on the fly directly from
 github with something like this: `/usr/bin/bash -c "$(curl -fsSL
-https://raw.github.com/rpavlik/luarocks-tumbler/master/luarocks-tumbler)"`
+https://raw.github.com/rpavlik/luarocks-tumbler/master/luarocks-tumbler)"
+luarocks-tumbler {ANY_OTHER_ARGS_HERE}`
 
 Thus, you can use it in your deploy scripts. That's what I'm doing with it, in any
 case.
