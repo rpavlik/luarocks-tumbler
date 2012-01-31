@@ -15,9 +15,7 @@ luarocks_url="http://luarocks.org/releases/luarocks-${luarocks_ver}.tar.gz"
 
 rundir=$(pwd)
 scriptdir=$(cd $(dirname $0) && pwd)
-logfile="${rundir}/tumbler.log"
 
-touch "${logfile}"
 
 if [ $# -eq 0 ]; then
 	# If no command line args, assume current directory
@@ -39,12 +37,23 @@ function statusmsg() {
 	echo "*** $1" | tee -a ${logfile}
 }
 
-statusmsg "Directories with rockspecs to install: ${rockdirs}"
 
 ###
-# Use or compute TREEDIR
+# Use or compute TREEDIR, which is part of the logfile path.
 : ${TREEDIR:="${rundir}/tree"}
 mkdir -p "${TREEDIR}"
+
+logfile="${TREEDIR}/tumbler.log"
+
+cat >> "${logfile}" <<EOF
+
+***
+* Beginning $(basename $0) run at $(date)
+***
+
+EOF
+
+statusmsg "Directories with rockspecs to install: ${rockdirs}"
 statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
 ###
@@ -96,3 +105,5 @@ for rockdir in ${rockdirs}; do
 	${PREFIX}/bin/luarocks make >> ${logfile} && statusmsg "luarocks make in ${rockdir} complete!"
 )
 done
+
+statusmsg "luarocks-tumbler complete - full output was logged to ${logfile}"
