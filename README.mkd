@@ -27,9 +27,11 @@ the list of scripts (which will get a wrapper script from LuaRocks to
 use the right deps) and because you need to specify your dependencies.
 
 Then, running the `luarocks-tumbler` script in your app directory will,
-by default, download, extract, build, and install LuaRocks to a
-temporary directory with a rocks tree rooted at `$(pwd)/tree` (override
-by setting environment variable `TREEDIR`).
+by default, download and extract LuaRocks, installing with a rocks tree
+rooted at `$(pwd)/tree` (override by setting environment variable
+`TREEDIR`) and with LuaRocks itself in the prefix
+`${TREEDIR}/luarocks-${luarocks_ver}` (override by setting environment
+variable `PREFIX`).
 
 Tumbler then calls `luarocks make` in all the directories you specify to
 build and install them to `TREEDIR`. When called without any arguments,
