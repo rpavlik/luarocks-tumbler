@@ -16,33 +16,13 @@ luarocks_url="http://luarocks.org/releases/luarocks-${luarocks_ver}.tar.gz"
 rundir=$(pwd)
 scriptdir=$(cd $(dirname $0) && pwd)
 
-
-if [ $# -eq 0 ]; then
-	# If no command line args, assume current directory
-	rockdirs="${rundir}"
-else
-	rockdirs="$@"
-fi
-
-if which wget > /dev/null; then
-	WGET="wget -c -t0"
-else
-	WGET="curl -O --retry 10"
-fi
-
-temps=""
-
-function statusmsg() {
-	echo | tee -a ${logfile}
-	echo "*** $1" | tee -a ${logfile}
-}
-
-
 ###
-# Use or compute TREEDIR, which is part of the logfile path.
+# Prepare specified or computed TREEDIR
 : ${TREEDIR:="${rundir}/tree"}
 mkdir -p "${TREEDIR}"
 
+###
+# Start log file
 logfile="${TREEDIR}/tumbler.log"
 
 cat >> "${logfile}" <<EOF
@@ -53,7 +33,36 @@ cat >> "${logfile}" <<EOF
 
 EOF
 
-statusmsg "Directories with rockspecs to install: ${rockdirs}"
+function statusmsg() {
+	echo | tee -a ${logfile}
+	echo "*** $1" | tee -a ${logfile}
+}
+
+
+###
+# Determine which directories to build with luarocks
+if [ $# -eq 0 ]; then
+	# If no command line args, assume current directory
+	statusmsg "No arguments passed, so will run 'luarocks make' in the current directory: ${rockdirs}"
+	rockdirs="${rundir}"
+else
+	rockdirs="$@"
+	statusmsg "Will run 'luarocks make' in the given directories: ${rockdirs}"
+fi
+
+###
+# Choose a downloader
+if which wget > /dev/null; then
+	WGET="wget -c -t0"
+else
+	WGET="curl -O --retry 10"
+fi
+
+# Variable for tracking temporary directories/files we must delete.
+temps=""
+
+###
+# Log the selection of TREEEDIR
 statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
 ###
@@ -78,7 +87,11 @@ else
 fi
 mkdir -p "${WORKDIR}"
 
-trap "rm -rf $temps" EXIT
+###
+# Be sure to delete temporary directories.
+if [ ! -z "$temps" ]; then
+	trap "echo 'cleaning up by removing $temps; rm -rf $temps" EXIT
+fi
 
 (
 	# Grab latest luarocks and install
