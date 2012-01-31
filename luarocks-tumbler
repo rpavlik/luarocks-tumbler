@@ -35,7 +35,7 @@ EOF
 
 function statusmsg() {
 	echo | tee -a ${logfile}
-	echo "*** $1" | tee -a ${logfile}
+	echo -e "*** $1" | tee -a ${logfile}
 }
 
 
@@ -58,8 +58,14 @@ else
 	WGET="curl -O --retry 10"
 fi
 
-# Variable for tracking temporary directories/files we must delete.
-temps=""
+###
+# Variables and function for tracking temporary directories/files we must delete.
+TEMPS=""
+TEMPMSGS="Cleaning up temporary locations:"
+function addTempTrap() {
+	TEMPS="${TEMPS} ${2}"
+	TEMPMSGS="${TEMPMSGS}\n - ${1}: ${2}"
+}
 
 ###
 # Log the selection of TREEEDIR
@@ -71,6 +77,7 @@ if [ -z "${PREFIX}" ]; then
 	PREFIX=$(mktemp -d)
 	temps="${temps} ${PREFIX}"
 	statusmsg "Using a temporary directory as the LuaRocks install prefix: ${PREFIX}"
+	addTempTrap "LuaRocks install prefix" "${PREFIX}"
 else
 	statusmsg "Will install LuaRocks itself to the prefix ${PREFIX}"
 fi
@@ -82,6 +89,7 @@ if [ -z "${WORKDIR}" ]; then
 	WORKDIR=$(mktemp -d)
 	temps="${temps} ${WORKDIR}"
 	statusmsg "Using a temporary directory as the working directory for download, extraction, and build: ${WORKDIR}"
+	addTempTrap "working directory" "${WORKDIR}"
 else
 	statusmsg "Using specified directory as the working directory for download, extraction, and build: ${WORKDIR}"
 fi
@@ -89,8 +97,8 @@ mkdir -p "${WORKDIR}"
 
 ###
 # Be sure to delete temporary directories.
-if [ ! -z "$temps" ]; then
-	trap "echo 'cleaning up by removing $temps; rm -rf $temps" EXIT
+if [ ! -z "${TEMPS}" ]; then
+	trap "statusmsg '${TEMPMSGS}'; rm -rf ${TEMPS}" EXIT
 fi
 
 (
