@@ -76,6 +76,8 @@ statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 mkdir -p "${PREFIX}"
 statusmsg "Will install LuaRocks itself to the prefix ${PREFIX}"
 
+luarocks_stamp="${PREFIX}/tumblerdone"
+
 ###
 # Use or make a temporary WORKDIR
 if [ -z "${WORKDIR}" ]; then
@@ -94,22 +96,23 @@ if [ ! -z "${TEMPS}" ]; then
 	trap "statusmsg '${TEMPMSGS}'; rm -rf ${TEMPS}" EXIT
 fi
 
-(
-	# Grab latest luarocks and install
-	cd "${WORKDIR}"
-	if [ ! -f luarocks-${luarocks_ver}.tar.gz ]; then
-		statusmsg "Downloading and unzipping ${luarocks_url}"
-		$WGET $luarocks_url >> ${logfile}
-		tar xvzf luarocks-${luarocks_ver}.tar.gz >> ${logfile}
-	fi
-	cd luarocks-$luarocks_ver
+if [ ! -f "${luarocks_stamp}" ]; then
+	(
+		# Grab latest luarocks and install
+		cd "${WORKDIR}"
+		if [ ! -f luarocks-${luarocks_ver}.tar.gz ]; then
+			statusmsg "Downloading and unzipping ${luarocks_url}"
+			$WGET $luarocks_url >> ${logfile}
+			tar xvzf luarocks-${luarocks_ver}.tar.gz >> ${logfile}
+		fi
+		cd luarocks-$luarocks_ver
 
-	statusmsg "Configuring LuaRocks ${luarocks_ver}"
-	./configure --prefix=${PREFIX} --sysconfdir=${TREEDIR} --rocks-tree=${TREEDIR} --force-config >> ${logfile}
-
-	statusmsg "Installing LuaRocks ${luarocks_ver}"
-	make install >> ${logfile}
-)
+		statusmsg "Configuring LuaRocks ${luarocks_ver}" && \
+		./configure --prefix=${PREFIX} --sysconfdir=${TREEDIR} --rocks-tree=${TREEDIR} --force-config >> ${logfile} && \
+		statusmsg "Installing LuaRocks ${luarocks_ver}" && \
+		make install >> ${logfile} && touch "${luarocks_stamp}"
+	)
+fi
 
 for rockdir in ${rockdirs}; do
 (
