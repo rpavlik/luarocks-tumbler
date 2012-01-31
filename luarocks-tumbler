@@ -14,7 +14,6 @@ luarocks_ver="2.0.7.1"
 luarocks_url="http://luarocks.org/releases/luarocks-${luarocks_ver}.tar.gz"
 
 rundir=$(pwd)
-scriptdir=$(cd $(dirname $0) && pwd)
 
 ###
 # Prepare specified or computed TREEDIR
