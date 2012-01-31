@@ -31,7 +31,7 @@ if [ -z "${PREFIX}" ]; then
 	PREFIX=$(mktemp -d)
 	temps="${temps} ${PREFIX}"
 fi
-mkdir -p "${WORKDIR}"
+mkdir -p "${PREFIX}"
 
 if [ -z "${WORKDIR}" ]; then
 	WORKDIR=$(mktemp -d)
