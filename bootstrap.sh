@@ -11,10 +11,20 @@ fi
 
 rundir=$(pwd)
 scriptdir=$(cd $(dirname $0) && pwd)
+logfile="${rundir}/tumbler.log"
+logappend="tee -a '${logfile}'"
+
+touch "${logfile}"
+
+if [ $# -eq 0 ]; then
+	rockdirs="${rundir}"
+else
+	rockdirs="$@"
+fi
 
 temps=""
 
-: ${TREEDIR:="${rundir}/tree"
+: ${TREEDIR:="${rundir}/tree"}
 mkdir -p "${TREEDIR}"
 
 if [ -z "${PREFIX}" ]; then
@@ -31,8 +41,22 @@ mkdir -p "${WORKDIR}"
 
 trap "rm -rf $temps" EXIT
 
-# Grab latest luarocks
-cd "${WORKDIR}"
-$WGET $luarocks_url
-tar xvzf luarocks-${luarocks_ver}.tar.gz
-cd luarocks-$LUAROCKS_VERSION
+(
+	# Grab latest luarocks and install
+	cd "${WORKDIR}"
+	if [ ! -f luarocks-${luarocks_ver}.tar.gz ]; then
+		$WGET $luarocks_url
+		tar xvzf luarocks-${luarocks_ver}.tar.gz | ${logappend}
+	fi
+	cd luarocks-$luarocks_ver
+	./configure --prefix=${PREFIX} --sysconfdir=${TREEDIR} --rocks-tree=${TREEDIR} --force-config  | ${logappend}
+	make install | ${logappend}
+)
+
+for rockdir in ${rockdirs}; do
+(
+	cd ${rundir}
+	cd ${rockdir}
+	${PREFIX}/bin/luarocks make | ${logappend}
+)
+done
