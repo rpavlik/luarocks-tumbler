@@ -58,15 +58,6 @@ else
 fi
 
 ###
-# Variables and function for tracking temporary directories/files we must delete.
-TEMPS=""
-TEMPMSGS="Cleaning up temporary locations:"
-function addTempTrap() {
-	TEMPS="${TEMPS} ${2}"
-	TEMPMSGS="${TEMPMSGS}\n - ${1}: ${2}"
-}
-
-###
 # Log the selection of TREEDIR
 statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
@@ -82,20 +73,14 @@ luarocks_stamp="${PREFIX}/tumblerdone"
 # Use or make a temporary WORKDIR
 if [ -z "${WORKDIR}" ]; then
 	WORKDIR=$(mktemp -d)
-	temps="${temps} ${WORKDIR}"
 	statusmsg "Using a temporary directory as the working directory for download, extraction, and build: ${WORKDIR}"
-	addTempTrap "working directory" "${WORKDIR}"
+	trap "statusmsg 'Cleaning up temporary working directory'; rm -rf ${WORKDIR}" EXIT
 else
 	statusmsg "Using specified directory as the working directory for download, extraction, and build: ${WORKDIR}"
 fi
 mkdir -p "${WORKDIR}"
 
 ###
-# Be sure to delete temporary directories.
-if [ ! -z "${TEMPS}" ]; then
-	trap "statusmsg '${TEMPMSGS}'; rm -rf ${TEMPS}" EXIT
-fi
-
 if [ ! -f "${luarocks_stamp}" ]; then
 	(
 		# Grab latest luarocks and install
