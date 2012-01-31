@@ -81,6 +81,7 @@ fi
 mkdir -p "${WORKDIR}"
 
 ###
+# If luarocks isn't installed to this tree yet, install it.
 if [ ! -f "${luarocks_stamp}" ]; then
 	(
 		# Grab latest luarocks and install
