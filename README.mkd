@@ -21,10 +21,10 @@ Heroku written in Node.js, it does something similar using npm. I'm not
 terribly familiar with either of those tools, so forgive any
 mis-representation or misunderstanding.
 
-Essentially, you create a rockspec for your application to drive the
-build. This is mostly important because of the list of scripts (which
-will get a wrapper script from LuaRocks to use the right deps) and
-because you need to specify your dependencies.
+Essentially, you create a rockspec for your application so that
+[LuaRocks][] can drive the build. This is mostly important because of
+the list of scripts (which will get a wrapper script from LuaRocks to
+use the right deps) and because you need to specify your dependencies.
 
 Then, running the `luarocks-tumbler` script in your app directory will,
 by default, download, extract, build, and install LuaRocks to a
@@ -37,6 +37,8 @@ Tumbler assumes you mean the current directory.
 
 When all is said and done, you'll have your app, as well as all of its
 dependencies (except for Lua) installed to `TREEDIR` in a self-contained way.
+
+[LuaRocks]:http://luarocks.org/
 
 Requirements
 ------------
