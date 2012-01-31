@@ -1,0 +1,80 @@
+LuaRocks Tumbler
+================
+
+A little script inspired by envy of `bundler` and `npm`, particularly as
+used by Heroku.
+
+Homepage: <https://github.com/rpavlik/luarocks-tumbler>
+
+Original author: [Ryan
+Pavlik][rp], <rpavlik@iastate.edu> <abiryan@ryand.net>
+
+[rp]:http://academic.cleardefinition.com/ "Ryan Pavlik"
+
+About
+-----
+LuaRocks-Tumbler (which I'll just call Tumbler from here on) is my
+answer to the question of, how can I do an automated deployment of some
+Lua application that is self-contained with its dependencies? I think
+that Bundler lets you do this with Ruby, and when I've pushed apps to
+Heroku written in Node.js, it does something similar using npm. I'm not
+terribly familiar with either of those tools, so forgive any
+mis-representation or misunderstanding.
+
+Essentially, you create a rockspec for your application to drive the
+build. This is mostly important because of the list of scripts (which
+will get a wrapper script from LuaRocks to use the right deps) and
+because you need to specify your dependencies.
+
+Then, running the `luarocks-tumbler` script in your app directory will,
+by default, download, extract, build, and install LuaRocks to a
+temporary directory with a rocks tree rooted at `$(pwd)/tree` (override
+by setting environment variable `TREEDIR`).
+
+Tumbler then calls `luarocks make` in all the directories you specify to
+build and install them to `TREEDIR`. When called without any arguments,
+Tumbler assumes you mean the current directory.
+
+When all is said and done, you'll have your app, as well as all of its
+dependencies (except for Lua) installed to `TREEDIR` in a self-contained way.
+
+Requirements
+------------
+
+- Bash shell
+
+- Lua 5.1 already installed (luarocks not needed, though)
+
+	- Yes, this means that we don't bootstrap and bundle a Lua executable
+	unlike the Kepler installer. Makes it simpler.
+
+- `wget` or `curl` and an internet connection
+
+- A unixy platform compatible with the `.tar.gz` version of the LuaRocks
+	download, rather than the `Win32.zip` version.
+
+Notes
+-----
+This is particularly useful in conjuction with [git-deploy][]. Just add
+Tumbler as a submodule (or `wget` the latest version on the fly directly
+from github at
+<https://raw.github.com/rpavlik/luarocks-tumbler/master/luarocks-tumbler>)
+and use it in your deploy scripts. That's what I'm doing with it, in any
+case.
+
+[git-deploy]:https://github.com/mislav/git-deploy
+
+
+License
+-------
+`luarocks-tumbler` itself is licensed under the BSL 1.0. Other used
+components (lua, luarocks, etc) have their own licenses.
+
+`luarocks-tumbler` is subject to the following license:
+
+> Copyright Iowa State University 2012.
+>
+> Distributed under the Boost Software License, Version 1.0.
+>
+> (See accompanying file `LICENSE_1_0.txt` or copy at
+> <http://www.boost.org/LICENSE_1_0.txt>)
