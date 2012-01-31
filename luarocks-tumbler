@@ -67,7 +67,7 @@ function addTempTrap() {
 }
 
 ###
-# Log the selection of TREEEDIR
+# Log the selection of TREEDIR
 statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
 ###
