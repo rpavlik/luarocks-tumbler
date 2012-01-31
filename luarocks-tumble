@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Original Author:
+# 2012 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+# http://academic.cleardefinition.com
+# Iowa State University HCI Graduate Program/VRAC
+#
+# Copyright Iowa State University 2012.
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 luarocks_ver="2.0.7.1"
 luarocks_url="http://luarocks.org/releases/luarocks-${luarocks_ver}.tar.gz"
 
@@ -17,6 +27,7 @@ logappend="tee -a '${logfile}'"
 touch "${logfile}"
 
 if [ $# -eq 0 ]; then
+	# If no command line args, assume current directory
 	rockdirs="${rundir}"
 else
 	rockdirs="$@"
@@ -24,18 +35,38 @@ fi
 
 temps=""
 
+function statusmsg() {
+	echo | tee -a ${logfile}
+	echo "*** $1" | tee -a ${logfile}
+}
+
+statusmsg "Directories with rockspecs to install: ${rockdirs}"
+
+###
+# Use or compute TREEDIR
 : ${TREEDIR:="${rundir}/tree"}
 mkdir -p "${TREEDIR}"
+statusmsg "Will install rocks to a tree rooted at ${TREEDIR}"
 
+###
+# Use or make a temporary PREFIX
 if [ -z "${PREFIX}" ]; then
 	PREFIX=$(mktemp -d)
 	temps="${temps} ${PREFIX}"
+	statusmsg "Using a temporary directory as the LuaRocks install prefix: ${PREFIX}"
+else
+	statusmsg "Will install LuaRocks itself to the prefix ${PREFIX}"
 fi
 mkdir -p "${PREFIX}"
 
+###
+# Use or make a temporary WORKDIR
 if [ -z "${WORKDIR}" ]; then
 	WORKDIR=$(mktemp -d)
 	temps="${temps} ${WORKDIR}"
+	statusmsg "Using a temporary directory as the working directory for download, extraction, and build: ${WORKDIR}"
+else
+	statusmsg "Using specified directory as the working directory for download, extraction, and build: ${WORKDIR}"
 fi
 mkdir -p "${WORKDIR}"
 
@@ -45,18 +76,24 @@ trap "rm -rf $temps" EXIT
 	# Grab latest luarocks and install
 	cd "${WORKDIR}"
 	if [ ! -f luarocks-${luarocks_ver}.tar.gz ]; then
-		$WGET $luarocks_url
-		tar xvzf luarocks-${luarocks_ver}.tar.gz | ${logappend}
+		statusmsg "Downloading and unzipping ${luarocks_url}"
+		$WGET $luarocks_url >> ${logfile}
+		tar xvzf luarocks-${luarocks_ver}.tar.gz >> ${logfile}
 	fi
 	cd luarocks-$luarocks_ver
-	./configure --prefix=${PREFIX} --sysconfdir=${TREEDIR} --rocks-tree=${TREEDIR} --force-config  | ${logappend}
-	make install | ${logappend}
+
+	statusmsg "Configuring LuaRocks ${luarocks_ver}"
+	./configure --prefix=${PREFIX} --sysconfdir=${TREEDIR} --rocks-tree=${TREEDIR} --force-config >> ${logfile}
+
+	statusmsg "Installing LuaRocks ${luarocks_ver}"
+	make install >> ${logfile}
 )
 
 for rockdir in ${rockdirs}; do
 (
 	cd ${rundir}
 	cd ${rockdir}
-	${PREFIX}/bin/luarocks make | ${logappend}
+	statusmsg "Running luarocks make in $(pwd)"
+	${PREFIX}/bin/luarocks make >> ${logfile} && statusmsg "luarocks make in ${rockdir} complete!"
 )
 done
