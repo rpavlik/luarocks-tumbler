@@ -6,10 +6,18 @@ used by Heroku.
 
 Homepage: <https://github.com/rpavlik/luarocks-tumbler>
 
-Original author: [Ryan
-Pavlik][rp], <rpavlik@iastate.edu> <abiryan@ryand.net>
+Original author: [Rylie Pavlik][rp], <rylie@ryliepavlik.com>
 
-[rp]:http://academic.cleardefinition.com/ "Ryan Pavlik"
+[rp]:http://ryliepavlik.com/ "Rylie Pavlik"
+
+Project Status
+--------------
+
+This was worthwhile and worked when I last used it.
+However, I have moved on, no longer use this or know if it is valuable,
+and have no capacity to meaningfully maintain it.
+
+**Unmaintained**
 
 About
 -----
